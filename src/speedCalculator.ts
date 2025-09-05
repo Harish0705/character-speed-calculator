@@ -8,6 +8,13 @@ interface SpeedOutput {
 }
 
 export function calculate_final_speed(input: SpeedInput): SpeedOutput {
+  // Validate inclines - magnitude should be less than 90 degrees
+  for (const incline of input.inclines) {
+    if (Math.abs(incline) >= 90) {
+      throw new Error(`Invalid incline: ${incline}. Magnitude must be less than 90 degrees.`);
+    }
+  }
+  
   let currentSpeed = input.initialSpeed;
   
   for (const incline of input.inclines) {
