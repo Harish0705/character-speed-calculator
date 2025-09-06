@@ -19,9 +19,8 @@ const loadParameters = async () => {
   // Load SSM parameters
   const ssmCommand = new GetParametersCommand({
     Names: [
-      '/gaming-api/COGNITO_USER_POOL_ID',
-      '/gaming-api/COGNITO_CLIENT_ID',
-      '/gaming-api/AWS_REGION'
+      '/cdk/cognito-user-pool-id',
+      '/cdk/cognito-client-id'
     ],
     WithDecryption: true
   });
@@ -29,11 +28,15 @@ const loadParameters = async () => {
   const ssmResponse = await ssmClient.send(ssmCommand);
   
   ssmResponse.Parameters?.forEach(param => {
-    const key = param.Name?.split('/').pop();
-    if (key && param.Value) {
-      process.env[key] = param.Value;
+    if (param.Name === '/cdk/cognito-user-pool-id') {
+      process.env.COGNITO_USER_POOL_ID = param.Value;
+    } else if (param.Name === '/cdk/cognito-client-id') {
+      process.env.COGNITO_CLIENT_ID = param.Value;
     }
   });
+  
+  // Set region from environment
+  process.env.AWS_REGION = region;
   
   // Load client secret from Secrets Manager
   try {
@@ -84,7 +87,9 @@ const createApp = async () => {
 
     // Global error handler
     appInstance.use((error: any, req: any, res: any, next: any) => {
-      res.status(400).json({ error: error.message });
+      console.error('Lambda error occurred:', error);
+      console.error('Error stack:', error.stack);
+      res.status(500).json({ error: error.message || 'Internal server error' });
     });
   }
   return appInstance;

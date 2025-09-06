@@ -6,13 +6,8 @@ import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import { Construct } from 'constructs';
 
-export interface GamingApiStackProps extends cdk.StackProps {
-  cognitoUserPoolId: string;
-  cognitoClientId: string;
-}
-
 export class GamingApiStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props: GamingApiStackProps) {
+  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
     // Create secret for Cognito client secret
@@ -42,7 +37,10 @@ export class GamingApiStack extends cdk.Stack {
         'ssm:GetParameters',
         'ssm:GetParametersByPath'
       ],
-      resources: [`arn:aws:ssm:${this.region}:${this.account}:parameter/gaming-api/*`]
+      resources: [
+        `arn:aws:ssm:${this.region}:${this.account}:parameter/gaming-api/*`,
+        `arn:aws:ssm:${this.region}:${this.account}:parameter/cdk/*`
+      ]
     }));
 
     // Add permissions for Secrets Manager
@@ -85,16 +83,8 @@ export class GamingApiStack extends cdk.Stack {
       anyMethod: true
     });
 
-    // Store parameters in Systems Manager
-    new ssm.StringParameter(this, 'CognitoUserPoolId', {
-      parameterName: '/gaming-api/COGNITO_USER_POOL_ID',
-      stringValue: props.cognitoUserPoolId
-    });
-
-    new ssm.StringParameter(this, 'CognitoClientId', {
-      parameterName: '/gaming-api/COGNITO_CLIENT_ID',
-      stringValue: props.cognitoClientId
-    });
+    // Reference existing Parameter Store values (no need to duplicate)
+    // Lambda will read directly from /cdk/cognito-user-pool-id and /cdk/cognito-client-id
 
     new ssm.StringParameter(this, 'AwsRegion', {
       parameterName: '/gaming-api/AWS_REGION',
