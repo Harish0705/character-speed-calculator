@@ -167,17 +167,21 @@ Content-Type: application/json
 
 ### Environment Variables (Local)
 ```env
-COGNITO_USER_POOL_ID=us-east-1_xxxxxxxxx
-COGNITO_CLIENT_ID=xxxxxxxxxxxxxxxxxxxxxxxxxx
-AWS_REGION=us-east-1
-PORT=3002
+PORT=300
+# AWS Cognito Configuration
+AWS_REGION= 'Your AWS Region'
+COGNITO_USER_POOL_ID='Your User Pool ID'
+COGNITO_CLIENT_ID='Your Client Id'
+COGNITO_CLIENT_SECRET='Your Client Secret'
+
+AWS_ACCESS_KEY_ID='Your User Access Key ID'
+AWS_SECRET_ACCESS_KEY='Your User Access Key Secret'
 ```
 
 ### AWS Configuration
 - **Parameter Store**: Non-sensitive configuration
 - **Secrets Manager**: Cognito client secret
 - **IAM Roles**: Lambda execution permissions
-
 
 
 ## 🔒 Security Features
