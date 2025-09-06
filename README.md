@@ -21,6 +21,25 @@ A serverless REST API built with TypeScript and Express.js that calculates gamin
 - **Authentication**: AWS Cognito + JWT
 - **Deployment**: Serverless (AWS Lambda)
 
+### AWS Configuration
+- **Parameter Store**: Non-sensitive configuration
+- **Secrets Manager**: Cognito client secret
+- **IAM Roles**: Lambda execution permissions
+
+
+### 🔒 Security Features
+
+- **JWT Authentication**: Secure token-based authentication
+- **AWS Cognito**: Managed user authentication service
+- **Secrets Management**: Sensitive data stored in AWS Secrets Manager
+- **IAM Roles**: Least-privilege access for Lambda functions
+- **Input Validation**: Server-side validation for all inputs
+
+### 📊 Monitoring & Logging
+
+- **CloudWatch Logs**: Centralized logging for debugging
+- **Lambda Metrics**: Performance and error monitoring
+- **API Gateway Metrics**: Request/response monitoring
 
 ## 🧮 Speed Calculation Logic
 
@@ -177,26 +196,6 @@ COGNITO_CLIENT_SECRET='Your Client Secret'
 AWS_ACCESS_KEY_ID='Your User Access Key ID'
 AWS_SECRET_ACCESS_KEY='Your User Access Key Secret'
 ```
-
-### AWS Configuration
-- **Parameter Store**: Non-sensitive configuration
-- **Secrets Manager**: Cognito client secret
-- **IAM Roles**: Lambda execution permissions
-
-
-## 🔒 Security Features
-
-- **JWT Authentication**: Secure token-based authentication
-- **AWS Cognito**: Managed user authentication service
-- **Secrets Management**: Sensitive data stored in AWS Secrets Manager
-- **IAM Roles**: Least-privilege access for Lambda functions
-- **Input Validation**: Server-side validation for all inputs
-
-## 📊 Monitoring & Logging
-
-- **CloudWatch Logs**: Centralized logging for debugging
-- **Lambda Metrics**: Performance and error monitoring
-- **API Gateway Metrics**: Request/response monitoring
 
 ## 🚀 Deployment Commands
 
