@@ -5,6 +5,7 @@ A serverless REST API built with TypeScript and Express.js that calculates gamin
 ## 🏗️ Architecture
 
 ### AWS Services Used
+- **Amazon Q Developer** - Generative AI coding assitant
 - **AWS Lambda** - Serverless compute for API execution
 - **API Gateway** - HTTP API endpoint management
 - **AWS Cognito** - User authentication and JWT token management
