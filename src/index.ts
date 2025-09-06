@@ -1,8 +1,10 @@
 import express from 'express';
 import dotenv from 'dotenv';
+import swaggerUi from 'swagger-ui-express';
 import { calculate_final_speed } from './speedCalculator';
 import authRoutes from './auth/authRoutes';
 import { authenticateToken } from './auth/middleware';
+import { specs } from './swagger';
 
 dotenv.config();
 
@@ -12,8 +14,18 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 
 app.get('/', (req, res) => {
-  res.json({ message: 'Character Speed Calculator API' });
+  res.json({ 
+    message: 'Character Speed Calculator API',
+    documentation: '/api-docs'
+  });
 });
+
+// Swagger UI
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
+  explorer: true,
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: 'Gaming API Documentation'
+}));
 
 // Authentication routes
 app.use('/auth', authRoutes);

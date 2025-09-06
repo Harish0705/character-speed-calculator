@@ -1,10 +1,12 @@
 import serverless from 'serverless-http';
 import express from 'express';
+import swaggerUi from 'swagger-ui-express';
 import { SSMClient, GetParametersCommand } from '@aws-sdk/client-ssm';
 import { SecretsManagerClient, GetSecretValueCommand } from '@aws-sdk/client-secrets-manager';
 import { calculate_final_speed } from './speedCalculator';
 import authRoutes from './auth/authRoutes';
 import { authenticateToken } from './auth/middleware';
+import { specs } from './swagger';
 
 // Load parameters from AWS Systems Manager and Secrets Manager
 const loadParameters = async () => {
@@ -55,8 +57,18 @@ const createApp = async () => {
     appInstance.use(express.json());
     
     appInstance.get('/', (req, res) => {
-      res.json({ message: 'Character Speed Calculator API' });
+      res.json({ 
+        message: 'Character Speed Calculator API',
+        documentation: '/api-docs'
+      });
     });
+
+    // Swagger UI
+    appInstance.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
+      explorer: true,
+      customCss: '.swagger-ui .topbar { display: none }',
+      customSiteTitle: 'Gaming API Documentation'
+    }));
     
     appInstance.use('/auth', authRoutes);
     
