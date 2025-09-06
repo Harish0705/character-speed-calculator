@@ -1,5 +1,6 @@
-import serverless from 'serverless-http';
 import express from 'express';
+import serverless from 'serverless-http';
+import 'express-async-errors';
 import swaggerUi from 'swagger-ui-express';
 import { SSMClient, GetParametersCommand } from '@aws-sdk/client-ssm';
 import { SecretsManagerClient, GetSecretValueCommand } from '@aws-sdk/client-secrets-manager';
@@ -7,6 +8,7 @@ import { calculate_final_speed } from './speedCalculator';
 import authRoutes from './auth/authRoutes';
 import { authenticateToken } from './auth/middleware';
 import { specs } from './swagger';
+import { validateSpeedCalculationInput, setupJsonParser, setupJsonErrorHandler } from './validation';
 
 // Load parameters from AWS Systems Manager and Secrets Manager
 const loadParameters = async () => {
@@ -54,7 +56,9 @@ const createApp = async () => {
     await loadParameters();
     
     appInstance = express();
-    appInstance.use(express.json());
+    // Setup JSON parsing with error handling
+    appInstance.use(setupJsonParser());
+    appInstance.use(setupJsonErrorHandler());
     
     appInstance.get('/', (req, res) => {
       res.json({ 
@@ -73,12 +77,14 @@ const createApp = async () => {
     appInstance.use('/auth', authRoutes);
     
     appInstance.post('/calculate-speed', authenticateToken, (req, res) => {
-      try {
-        const result = calculate_final_speed(req.body);
-        res.json(result);
-      } catch (error:any) {
-        res.status(400).json({ error: error.message });
-      }
+      const validatedInput = validateSpeedCalculationInput(req.body);
+      const result = calculate_final_speed(validatedInput);
+      res.json(result);
+    });
+
+    // Global error handler
+    appInstance.use((error: any, req: any, res: any, next: any) => {
+      res.status(400).json({ error: error.message });
     });
   }
   return appInstance;
