@@ -78,6 +78,8 @@ src/
 │   ├── cognitoService.ts     # AWS Cognito integration
 │   └── middleware.ts         # JWT verification middleware
 ├── speedCalculator.ts        # Speed calculation logic
+├── validation.ts             # Input validation and JSON parsing
+├── swagger.ts                # Swagger/OpenAPI documentation
 ├── index.ts                  # Local development server
 └── lambda.ts                 # AWS Lambda handler
 
@@ -86,6 +88,8 @@ infrastructure/
 └── app.ts                    # CDK app entry point
 
 cdk.json                      # CDK configuration
+package.json                  # Dependencies and scripts
+.gitignore                    # Git ignore rules
 ```
 
 ## 🛠️ Setup & Installation
