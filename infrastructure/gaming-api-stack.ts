@@ -6,8 +6,13 @@ import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import { Construct } from 'constructs';
 
+export interface GamingApiStackProps extends cdk.StackProps {
+  cognitoUserPoolId: string;
+  cognitoClientId: string;
+}
+
 export class GamingApiStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+  constructor(scope: Construct, id: string, props: GamingApiStackProps) {
     super(scope, id, props);
 
     // Create secret for Cognito client secret
@@ -83,12 +88,12 @@ export class GamingApiStack extends cdk.Stack {
     // Store parameters in Systems Manager
     new ssm.StringParameter(this, 'CognitoUserPoolId', {
       parameterName: '/gaming-api/COGNITO_USER_POOL_ID',
-      stringValue: 'us-east-1_Eh2WlYG03'
+      stringValue: props.cognitoUserPoolId
     });
 
     new ssm.StringParameter(this, 'CognitoClientId', {
       parameterName: '/gaming-api/COGNITO_CLIENT_ID',
-      stringValue: '18p1ahbbohrqqnh4ohe9kum76e'
+      stringValue: props.cognitoClientId
     });
 
     new ssm.StringParameter(this, 'AwsRegion', {
