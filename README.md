@@ -58,11 +58,12 @@ The API calculates character speed based on terrain inclines:
 - Calculation: 60 → 60 → 30 → 30 → 75 → 75
 - Final speed: 75
 
-Initial speed: 50
+- Initial speed: 50
 - Inclines: [0, 30, 0, -45, 0, 70]
 - Calculation: 50 → 50 → 20 → 20 → 65 → 65 → 0
 - Final speed: 0 
 - When the final speed value less than or equal to 0, here final speed is -5, therefore result is 0
+
 
 - Initial speed: 60
 - Inclines: [0, 90, 0, -45, 0]
