@@ -4,11 +4,18 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const verifier = CognitoJwtVerifier.create({
-  userPoolId: process.env.COGNITO_USER_POOL_ID!,
-  tokenUse: 'access',
-  clientId: process.env.COGNITO_CLIENT_ID!
-});
+let verifier: any;
+
+const getVerifier = () => {
+  if (!verifier) {
+    verifier = CognitoJwtVerifier.create({
+      userPoolId: process.env.COGNITO_USER_POOL_ID!,
+      tokenUse: 'access',
+      clientId: process.env.COGNITO_CLIENT_ID!
+    });
+  }
+  return verifier;
+};
 
 export interface AuthenticatedRequest extends Request {
   user?: any;
@@ -31,7 +38,8 @@ export const authenticateToken = async (
   }
 
   try {
-    const payload = await verifier.verify(token);
+    const jwtVerifier = getVerifier();
+    const payload = await jwtVerifier.verify(token);
     req.user = payload;
     next();
   } catch (error) {
