@@ -5,7 +5,7 @@ A serverless REST API built with TypeScript and Express.js that calculates gamin
 ## 🏗️ Architecture
 
 ### AWS Services Used
-- **Amazon Q Developer** - Generative AI coding assitant
+- **Amazon Q Developer** - Generative AI coding assistant
 - **AWS Lambda** - Serverless compute for API execution
 - **API Gateway** - HTTP API endpoint management
 - **AWS Cognito** - User authentication and JWT token management
@@ -133,7 +133,7 @@ package.json                  # Dependencies and scripts
    npm run cdk:deploy
    ```
 
-3. **Add Cognito User Pool ID and Client and Client Secret to Parameter Store**
+3. **Add Cognito User Pool ID, Client ID and Client Secret to Parameter Store**
    ```bash
    aws secretsmanager put-secret-value \
      --secret-id "gaming-api/cognito-client-secret" \
