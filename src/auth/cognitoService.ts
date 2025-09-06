@@ -10,11 +10,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const cognito = new CognitoIdentityProviderClient({
-  region: process.env.AWS_REGION,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!
-  }
+  region: process.env.AWS_REGION || 'us-east-1'
 });
 
 export interface RegisterRequest {
@@ -28,31 +24,43 @@ export interface LoginRequest {
 }
 
 export class CognitoService {
-  private userPoolId = process.env.COGNITO_USER_POOL_ID!;
-  private clientId = process.env.COGNITO_CLIENT_ID!;
+  private userPoolId?: string;
+  private clientId?: string;
 
-  constructor() {
-    console.log('Cognito Config:', {
-      userPoolId: this.userPoolId,
-      clientId: this.clientId,
-      region: process.env.AWS_REGION
-    });
+  private getConfig() {
+    if (!this.userPoolId || !this.clientId) {
+      this.userPoolId = process.env.COGNITO_USER_POOL_ID;
+      this.clientId = process.env.COGNITO_CLIENT_ID;
+      
+      console.log('Cognito Config:', {
+        userPoolId: this.userPoolId,
+        clientId: this.clientId,
+        region: process.env.AWS_REGION
+      });
+    }
+    
+    return {
+      userPoolId: this.userPoolId!,
+      clientId: this.clientId!
+    };
   }
 
   private generateSecretHash(email: string): string {
     const clientSecret = process.env.COGNITO_CLIENT_SECRET;
     if (!clientSecret) return '';
     
+    const config = this.getConfig();
     return crypto
       .createHmac('SHA256', clientSecret)
-      .update(email + this.clientId)
+      .update(email + config.clientId)
       .digest('base64');
   }
 
   async register(userData: RegisterRequest) {
+    const config = this.getConfig();
     const secretHash = this.generateSecretHash(userData.email);
     const command = new SignUpCommand({
-      ClientId: this.clientId,
+      ClientId: config.clientId,
       Username: userData.email,
       Password: userData.password,
       SecretHash: secretHash || undefined
@@ -62,6 +70,7 @@ export class CognitoService {
   }
 
   async login(credentials: LoginRequest) {
+    const config = this.getConfig();
     const secretHash = this.generateSecretHash(credentials.email);
     const authParams: any = {
       USERNAME: credentials.email,
@@ -74,7 +83,7 @@ export class CognitoService {
 
     const command = new InitiateAuthCommand({
       AuthFlow: 'USER_PASSWORD_AUTH',
-      ClientId: this.clientId,
+      ClientId: config.clientId,
       AuthParameters: authParams
     });
 
@@ -82,8 +91,9 @@ export class CognitoService {
   }
 
   async adminConfirmSignUp(email: string) {
+    const config = this.getConfig();
     const command = new AdminConfirmSignUpCommand({
-      UserPoolId: this.userPoolId,
+      UserPoolId: config.userPoolId,
       Username: email
     });
 
