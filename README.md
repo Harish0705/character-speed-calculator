@@ -127,12 +127,24 @@ cdk.json                      # CDK configuration
    npm run cdk:deploy
    ```
 
-3. **Add Cognito client secret**
+3. **Add Cognito User Pool ID and Client and Client Secret to Parameter Store**
    ```bash
    aws secretsmanager put-secret-value \
      --secret-id "gaming-api/cognito-client-secret" \
      --secret-string "YOUR_CLIENT_SECRET" \
      --region us-east-1
+
+   aws ssm put-parameter \
+     --name "/cdk/cognito-user-pool-id" \
+     --value "us-east-1_Eh2WlYG03" \
+     --type "String" \
+     --region us-east-1
+
+   aws ssm put-parameter \
+      --name "/cdk/cognito-client-id" \
+      --value "18p1ahbbohrqqnh4ohe9kum76e" \
+      --type "String" \
+      --region us-east-1
    ```
 
 ## 📚 API Endpoints
