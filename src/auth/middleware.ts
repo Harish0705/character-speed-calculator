@@ -1,8 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { CognitoJwtVerifier } from 'aws-jwt-verify';
-import dotenv from 'dotenv';
-
-dotenv.config();
+import { UnauthenticatedError } from '../errors/unauthenticated-error';
 
 let verifier: any;
 
@@ -30,7 +28,7 @@ export const authenticateToken = async (
   const token = authHeader && authHeader.split(' ')[1];
 
   if (!token) {
-    return res.status(401).json({ error: 'Access token required' });
+    throw new UnauthenticatedError('Access token required');
   }
 
   if (!process.env.COGNITO_USER_POOL_ID || !process.env.COGNITO_CLIENT_ID) {
@@ -43,6 +41,6 @@ export const authenticateToken = async (
     req.user = payload;
     next();
   } catch (error) {
-    return res.status(403).json({ error: 'Invalid or expired token' });
+    throw new UnauthenticatedError('Invalid or expired token');
   }
 };

@@ -9,6 +9,9 @@ import authRoutes from './auth/authRoutes';
 import { authenticateToken } from './auth/middleware';
 import { specs } from './swagger';
 import { validateSpeedCalculationInput, setupJsonParser } from './validation';
+import notFound from './errors/not-found-middleware';
+import errorHandler from './errors/error-handler-middleware';
+
 
 // Load parameters from AWS Systems Manager and Secrets Manager
 const loadParameters = async () => {
@@ -84,12 +87,11 @@ const createApp = async () => {
       res.json(result);
     });
 
+    // 404 handler for unmatched routes
+    appInstance.use(notFound);
+    
     // Global error handler
-    appInstance.use((error: any, req: any, res: any, next: any) => {
-      console.error('Lambda error occurred:', error);
-      console.error('Error stack:', error.stack);
-      res.status(500).json({ error: error.message || 'Internal server error' });
-    });
+    appInstance.use(errorHandler);
   }
   return appInstance;
 };
