@@ -6,7 +6,7 @@ import { calculate_final_speed } from './speedCalculator';
 import authRoutes from './auth/authRoutes';
 import { authenticateToken } from './auth/middleware';
 import { specs } from './swagger';
-import { validateSpeedCalculationInput, setupJsonParser, setupJsonErrorHandler } from './validation';
+import { validateSpeedCalculationInput, setupJsonParser } from './validation';
 
 dotenv.config();
 
@@ -15,7 +15,6 @@ const PORT = process.env.PORT || 3000;
 
 // Setup JSON parsing with error handling
 app.use(setupJsonParser());
-app.use(setupJsonErrorHandler());
 
 app.get('/', (req, res) => {
   res.json({ 
