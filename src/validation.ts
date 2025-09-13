@@ -17,17 +17,6 @@ export const setupJsonParser = () => {
   });
 };
 
-export const setupJsonErrorHandler = () => {
-  return (error: any, req: any, res: any, next: any) => {
-    if (error.status === 400 && error.message.includes('JSON')) {
-      return res.status(400).json({ 
-        error: 'Invalid JSON format. Please check for trailing commas or syntax errors.' 
-      });
-    }
-    next(error);
-  };
-};
-
 export const validateSpeedCalculationInput = (body: any) => {
   const { initialSpeed, inclines } = body;
 
