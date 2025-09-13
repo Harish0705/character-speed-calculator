@@ -8,7 +8,7 @@ import { calculate_final_speed } from './speedCalculator';
 import authRoutes from './auth/authRoutes';
 import { authenticateToken } from './auth/middleware';
 import { specs } from './swagger';
-import { validateSpeedCalculationInput, setupJsonParser, setupJsonErrorHandler } from './validation';
+import { validateSpeedCalculationInput, setupJsonParser } from './validation';
 
 // Load parameters from AWS Systems Manager and Secrets Manager
 const loadParameters = async () => {
@@ -61,7 +61,6 @@ const createApp = async () => {
     appInstance = express();
     // Setup JSON parsing with error handling
     appInstance.use(setupJsonParser());
-    appInstance.use(setupJsonErrorHandler());
     
     appInstance.get('/', (req, res) => {
       res.json({ 
