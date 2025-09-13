@@ -5,9 +5,6 @@ import {
   AdminConfirmSignUpCommand 
 } from '@aws-sdk/client-cognito-identity-provider';
 import crypto from 'crypto';
-import dotenv from 'dotenv';
-
-dotenv.config();
 
 const cognito = new CognitoIdentityProviderClient({
   region: process.env.AWS_REGION || 'us-east-1'
