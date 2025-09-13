@@ -1,4 +1,5 @@
 import express from 'express';
+import { ValidationError } from './errors/validation-error';
 
 export const setupJsonParser = () => {
   return express.json({
@@ -17,28 +18,17 @@ export const setupJsonParser = () => {
   });
 };
 
-export const setupJsonErrorHandler = () => {
-  return (error: any, req: any, res: any, next: any) => {
-    if (error.status === 400 && error.message.includes('JSON')) {
-      return res.status(400).json({ 
-        error: 'Invalid JSON format. Please check for trailing commas or syntax errors.' 
-      });
-    }
-    next(error);
-  };
-};
-
 export const validateSpeedCalculationInput = (body: any) => {
   const { initialSpeed, inclines } = body;
 
   // Validate initial speed
   if (typeof initialSpeed !== 'number' || initialSpeed < 0) {
-    throw new Error('Initial speed must be a non-negative number');
+    throw new ValidationError('Initial speed must be a non-negative number');
   }
 
   // Validate inclines array
   if (!Array.isArray(inclines)) {
-    throw new Error('Inclines must be an array');
+    throw new ValidationError('Inclines must be an array');
   }
 
   // Filter out null, undefined, empty values and validate
@@ -48,11 +38,11 @@ export const validateSpeedCalculationInput = (body: any) => {
     }
     
     if (typeof incline !== 'number' || isNaN(incline)) {
-      throw new Error(`Invalid incline at position ${index}: '${incline}'. All inclines must be valid numbers.`);
+      throw new ValidationError(`Invalid incline at position ${index}: '${incline}'. All inclines must be valid numbers.`);
     }
     
     if (Math.abs(incline) >= 90) {
-      throw new Error(`Invalid incline at position ${index}: ${incline}. Magnitude must be less than 90 degrees.`);
+      throw new ValidationError(`Invalid incline at position ${index}: ${incline}. Magnitude must be less than 90 degrees.`);
     }
     
     return true;

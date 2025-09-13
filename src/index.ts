@@ -6,7 +6,9 @@ import { calculate_final_speed } from './speedCalculator';
 import authRoutes from './auth/authRoutes';
 import { authenticateToken } from './auth/middleware';
 import { specs } from './swagger';
-import { validateSpeedCalculationInput, setupJsonParser, setupJsonErrorHandler } from './validation';
+import { validateSpeedCalculationInput, setupJsonParser } from './validation';
+import notFound from './errors/not-found-middleware';
+import errorHandler from './errors/error-handler-middleware';
 
 dotenv.config();
 
@@ -15,7 +17,6 @@ const PORT = process.env.PORT || 3000;
 
 // Setup JSON parsing with error handling
 app.use(setupJsonParser());
-app.use(setupJsonErrorHandler());
 
 app.get('/', (req, res) => {
   res.json({ 
@@ -41,10 +42,11 @@ app.post('/calculate-speed', authenticateToken, (req, res) => {
   res.json(result);
 });
 
+// 404 handler for unmatched routes
+app.use(notFound);
+
 // Global error handler
-app.use((error: any, req: any, res: any, next: any) => {
-  res.status(400).json({ error: error.message });
-});
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

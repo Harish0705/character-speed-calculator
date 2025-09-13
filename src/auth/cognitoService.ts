@@ -5,9 +5,10 @@ import {
   AdminConfirmSignUpCommand 
 } from '@aws-sdk/client-cognito-identity-provider';
 import crypto from 'crypto';
-import dotenv from 'dotenv';
-
-dotenv.config();
+import { UnauthenticatedError } from '../errors/unauthenticated-error';
+import { ForbiddenError } from '../errors/forbidden-error';
+import { BadRequestError } from '../errors/bad-request-error';
+import { TooManyRequestsError } from '../errors/too-many-requests-error';
 
 const cognito = new CognitoIdentityProviderClient({
   region: process.env.AWS_REGION || 'us-east-1'
@@ -66,7 +67,11 @@ export class CognitoService {
       SecretHash: secretHash || undefined
     });
 
-    return cognito.send(command);
+    try {
+      return await cognito.send(command);
+    } catch (error: any) {
+      this.handleCognitoError(error);
+    }
   }
 
   async login(credentials: LoginRequest) {
@@ -87,7 +92,29 @@ export class CognitoService {
       AuthParameters: authParams
     });
 
-    return cognito.send(command);
+    try {
+      return await cognito.send(command);
+    } catch (error: any) {
+      this.handleCognitoError(error);
+    }
+  }
+
+  private handleCognitoError(error: any): never {
+    switch (error.name) {
+      case 'NotAuthorizedException':
+      case 'UserNotFoundException':
+        throw new UnauthenticatedError('Invalid email or password');
+      case 'UserNotConfirmedException':
+        throw new ForbiddenError('Please verify your email first');
+      case 'UsernameExistsException':
+        throw new BadRequestError('An account with this email already exists');
+      case 'InvalidPasswordException':
+        throw new BadRequestError('Password does not meet requirements');
+      case 'TooManyRequestsException':
+        throw new TooManyRequestsError('Too many requests. Try again later');
+      default:
+        throw error;
+    }
   }
 
   async adminConfirmSignUp(email: string) {
