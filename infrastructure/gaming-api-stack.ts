@@ -25,23 +25,12 @@ export class GamingApiStack extends cdk.Stack {
       memorySize: 512,
       environment: {
         NODE_ENV: 'production',
-        AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1'
+        AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
+        AWS_REGION: this.region,
+        COGNITO_USER_POOL_ID: 'us-east-1_Eh2WlYG03',
+        COGNITO_CLIENT_ID: '18p1ahbbohrqqnh4ohe9kum76e'
       }
     });
-
-    // Add permissions for Systems Manager Parameter Store
-    gamingApiLambda.addToRolePolicy(new iam.PolicyStatement({
-      effect: iam.Effect.ALLOW,
-      actions: [
-        'ssm:GetParameter',
-        'ssm:GetParameters',
-        'ssm:GetParametersByPath'
-      ],
-      resources: [
-        `arn:aws:ssm:${this.region}:${this.account}:parameter/gaming-api/*`,
-        `arn:aws:ssm:${this.region}:${this.account}:parameter/cdk/*`
-      ]
-    }));
 
     // Add permissions for Secrets Manager
     gamingApiLambda.addToRolePolicy(new iam.PolicyStatement({
@@ -83,13 +72,7 @@ export class GamingApiStack extends cdk.Stack {
       anyMethod: true
     });
 
-    // Reference existing Parameter Store values (no need to duplicate)
-    // Lambda will read directly from /cdk/cognito-user-pool-id and /cdk/cognito-client-id
-
-    new ssm.StringParameter(this, 'AwsRegion', {
-      parameterName: '/gaming-api/AWS_REGION',
-      stringValue: this.region
-    });
+    // All configuration now passed as environment variables
 
     // Output the API URL
     new cdk.CfnOutput(this, 'ApiUrl', {
