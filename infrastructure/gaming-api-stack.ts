@@ -63,16 +63,115 @@ export class GamingApiStack extends cdk.Stack {
       }
     });
 
+    // Create request validator
+    const requestValidator = new apigateway.RequestValidator(this, 'RequestValidator', {
+      restApi: api,
+      validateRequestBody: true,
+      validateRequestParameters: true
+    });
+
+    // Speed calculation model
+    const speedCalculationModel = new apigateway.Model(this, 'SpeedCalculationModel', {
+      restApi: api,
+      contentType: 'application/json',
+      schema: {
+        type: apigateway.JsonSchemaType.OBJECT,
+        properties: {
+          initialSpeed: {
+            type: apigateway.JsonSchemaType.NUMBER,
+            minimum: 0,
+            maximum: 1000
+          },
+          inclines: {
+            type: apigateway.JsonSchemaType.ARRAY,
+            items: {
+              type: apigateway.JsonSchemaType.NUMBER,
+              minimum: -89,
+              maximum: 89
+            },
+            minItems: 1,
+            maxItems: 100
+          }
+        },
+        required: ['initialSpeed', 'inclines']
+      }
+    });
+
+    // User registration model
+    const userRegistrationModel = new apigateway.Model(this, 'UserRegistrationModel', {
+      restApi: api,
+      contentType: 'application/json',
+      schema: {
+        type: apigateway.JsonSchemaType.OBJECT,
+        properties: {
+          email: {
+            type: apigateway.JsonSchemaType.STRING,
+            pattern: '^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$'
+          },
+          password: {
+            type: apigateway.JsonSchemaType.STRING,
+            minLength: 8,
+            maxLength: 50
+          }
+        },
+        required: ['email', 'password']
+      }
+    });
+
+    // User login model
+    const userLoginModel = new apigateway.Model(this, 'UserLoginModel', {
+      restApi: api,
+      contentType: 'application/json',
+      schema: {
+        type: apigateway.JsonSchemaType.OBJECT,
+        properties: {
+          email: {
+            type: apigateway.JsonSchemaType.STRING,
+            pattern: '^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$'
+          },
+          password: {
+            type: apigateway.JsonSchemaType.STRING,
+            minLength: 1
+          }
+        },
+        required: ['email', 'password']
+      }
+    });
+
     // Create Lambda integration
     const lambdaIntegration = new apigateway.LambdaIntegration(gamingApiLambda);
 
-    // Add proxy resource to handle all routes
-    api.root.addProxy({
-      defaultIntegration: lambdaIntegration,
-      anyMethod: true
+    // Add specific resources with validation
+    const authResource = api.root.addResource('auth');
+    const registerResource = authResource.addResource('register');
+    const loginResource = authResource.addResource('login');
+    const calculateResource = api.root.addResource('calculate-speed');
+
+    // Add methods with validation
+    registerResource.addMethod('POST', lambdaIntegration, {
+      requestModels: {
+        'application/json': userRegistrationModel
+      },
+      requestValidator: requestValidator
     });
 
-    // All configuration now passed as environment variables
+    loginResource.addMethod('POST', lambdaIntegration, {
+      requestModels: {
+        'application/json': userLoginModel
+      },
+      requestValidator: requestValidator
+    });
+
+    calculateResource.addMethod('POST', lambdaIntegration, {
+      requestModels: {
+        'application/json': speedCalculationModel
+      },
+      requestValidator: requestValidator,
+      requestParameters: {
+        'method.request.header.Authorization': true
+      }
+    });
+
 
     // Output the API URL
     new cdk.CfnOutput(this, 'ApiUrl', {

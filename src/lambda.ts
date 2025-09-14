@@ -10,7 +10,7 @@ import { calculate_final_speed } from "./speedCalculator";
 import authRoutes from "./auth/authRoutes";
 import { authenticateToken } from "./auth/middleware";
 import { specs } from "./swagger";
-import { validateSpeedCalculationInput, setupJsonParser } from "./validation";
+import { validateSpeedCalculationInput } from "./validation";
 import notFound from "./errors/not-found-middleware";
 import errorHandler from "./errors/error-handler-middleware";
 
@@ -43,8 +43,7 @@ const createApp = async () => {
 
     appInstance = express();
 
-    // Setup JSON parsing with error handling
-    appInstance.use(setupJsonParser());
+    appInstance.use(express.json());
 
     appInstance.get("/", (req, res) => {
       res.json({
@@ -64,8 +63,10 @@ const createApp = async () => {
       })
     );
 
+    // Auth routes (validation handled by API Gateway)
     appInstance.use("/auth", authRoutes);
 
+    // Calculate speed route (validation handled by API Gateway)
     appInstance.post("/calculate-speed", authenticateToken, (req, res) => {
       const validatedInput = validateSpeedCalculationInput(req.body);
       const result = calculate_final_speed(validatedInput);
